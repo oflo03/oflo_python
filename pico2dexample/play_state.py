@@ -62,7 +62,7 @@ def draw():
     update_canvas()
 
 def pause():
-    1
+    pass
 
 def resume():
-    1
+    pass

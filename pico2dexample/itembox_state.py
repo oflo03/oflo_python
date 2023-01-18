@@ -31,10 +31,7 @@ def handle_events():
                 game_framework.pop_state()
             elif event.key == SDLK_0:
                 play_state.boy.item_image = None
-                game_framework.pop_state()
             elif event.key == SDLK_1:
                 play_state.boy.item_image = load_image('ball21X21.png')
-                game_framework.pop_state()
             elif event.key == SDLK_2:
                 play_state.boy.item_image = load_image('ball41X41.png')
-                game_framework.pop_state()
