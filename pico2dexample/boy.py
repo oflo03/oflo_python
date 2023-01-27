@@ -1,4 +1,18 @@
 from pico2d import *
+import game_framework
+
+PIXEL_PER_METER = 10.0 / 0.3
+RUN_SPEED_KMPH = 20.0
+RUN_SPEED_MPM = RUN_SPEED_KMPH * 1000.0 / 60.0
+RUN_SPEED_MPS = RUN_SPEED_MPM / 60.0
+RUN_SPEED_PPS = PIXEL_PER_METER * RUN_SPEED_MPS
+
+TIME_PER_ACTION = 0.7
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 10
+TIME_PER_IDLE = 0.5
+IDLE_PER_TIME = 1.0 / TIME_PER_IDLE
+FRAMES_PER_IDLE = 3
 
 class IDLE:
     def enter(self, event):
@@ -15,17 +29,17 @@ class IDLE:
         pass
 
     def do(self):
-        self.frame = (self.frame + 1) % 3
-        self.timer += 0.1
+        self.frame = (self.frame + FRAMES_PER_IDLE * IDLE_PER_TIME * game_framework.frame_time ) % FRAMES_PER_IDLE
+        self.timer += game_framework.frame_time
         if self.timer > 5:
             self.event_que.insert(0, 'TIMER5')
         pass
 
     def draw(self):
         if self.face_dir == -1:
-            Boy.idle.clip_composite_draw(self.frame * 100, 0, 100, 100, 0, 'h', self.x, self.y, 100, 100)
+            Boy.idle.clip_composite_draw(int(self.frame) * 100, 0, 100, 100, 0, 'h', self.x, self.y, 100, 100)
         elif self.face_dir == 1:
-            Boy.idle.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
+            Boy.idle.clip_draw(int(self.frame) * 100, 0, 100, 100, self.x, self.y)
         pass
 
 class RUN:
@@ -45,16 +59,16 @@ class RUN:
         pass
 
     def do(self):
-        self.frame = (self.frame + 1) % 10
-        self.x += self.dir * 10
+        self.frame = (self.frame + ACTION_PER_TIME * game_framework.frame_time * FRAMES_PER_ACTION) % FRAMES_PER_ACTION
+        self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
         self.x = clamp(0, self.x, 800)
         pass
 
     def draw(self):
         if self.dir == -1:
-            Boy.image.clip_composite_draw(self.frame * 100, 0, 100, 100, 0, 'h', self.x, self.y, 100, 100)
+            Boy.image.clip_composite_draw(int(self.frame) * 100, 0, 100, 100, 0, 'h', self.x, self.y, 100, 100)
         elif self.dir == 1:
-            Boy.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
+            Boy.image.clip_draw(int(self.frame) * 100, 0, 100, 100, self.x, self.y)
         pass
 
 class SLEEP:
@@ -105,6 +119,7 @@ class Boy:
         self.dir, self.face_dir = 0, 1
         self.frame = 0
         self.item_image = None
+        self.font = load_font('ENCR10B.TTF', 16)
 
         self.event_que = []
         self.cur_state = IDLE
@@ -125,3 +140,4 @@ class Boy:
 
     def draw(self):
         self.cur_state.draw(self)
+        self.font.draw(self.x - 60, self.y + 50, f'(Time: {get_time():.2f})', (255, 255, 0))

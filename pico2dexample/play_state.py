@@ -39,7 +39,6 @@ def handle_events():
 
 def update():
     boy.update()
-    delay(0.1)
 
 def draw():
     clear_canvas()
